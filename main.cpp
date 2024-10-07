@@ -15,17 +15,20 @@ int main()
         cin>>temp;
         list1.emplace_back(i,temp);
     }
-    int left,cnt=n;
+    int left=m,cnt=n;
     while(cnt){
-        left=m%n;
-        temp=
-
+        left=(left-1)%cnt+1;
+        auto it=list1.begin();
+        advance(it,left-1);
+        left+=it->second;
         if(cnt==n)
-            cout;
+            cout<<it->first+1;
         else {
-            cout;
+            cout<<' '<<it->first+1;
         }
-        cnt--;
+        list1.erase(it);
+        --cnt;
+        --left;
     }
 
     return 0;
