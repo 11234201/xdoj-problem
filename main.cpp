@@ -1,89 +1,52 @@
-// main.cpp文件
-
 #include <iostream>
 #include <string>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <stack>
-#include <cstring>
 #include <algorithm>
-using namespace std;
 
-class explainDemonL{
+class StringTransformer {
 public:
-static void run(string& inputS){
-    inputS= raw3(inputS);
-    inputS= rawB(inputS);
-    inputS= rawA(inputS);
-}
-//将所有B转换成tAdA
-static string rawB(string s){
-    string tmpS;
-    for(auto &tmpC:s){
-        if(tmpC=='B')
-            tmpS+="tAdA";
-        else
-            tmpS+=tmpC;
+    void transform(std::string& input) {
+        input = raw3(input);
+        input = replaceCharacter(input, 'B', "tAdA");
+        input = replaceCharacter(input, 'A', "sae");
     }
-    return tmpS;
-}
 
-//将所有A转换成sae
-static string rawA(string s){
-    string tmpS;
-    for(auto &tmpC:s){
-        if(tmpC=='A')
-            tmpS+="sae";
-        else
-            tmpS+=tmpC;
+private:
+    static std::string replaceCharacter(const std::string& s, char target, const std::string& replacement) {
+        std::string result;
+        result.reserve(s.size() * replacement.size()); // Reserve space for potential growth
+        for (char c : s) {
+            if (c == target) {
+                result += replacement;
+            } else {
+                result += c;
+            }
+        }
+        return result;
     }
-    return tmpS;
-}
 
-//将所有（？x1 x2...xn）转化为 ?xn?...?x2?x1?
-//?可以是任意字符
-static string raw3(string s){
-    string tmpS;
-    size_t left=s.find('('),right;
-    //如果有括号
-    if(left!=string::npos){
-        right=s.rfind(')');
-        tmpS=s.substr(left+2,right-left-2);//tmpS这时已成为括号里除了第一个字符之外的串
-
-        char theta= s[left+1];//？对应的字符
-
-        //递归调用
-        tmpS=raw3(tmpS);
-
-        string changedS;
-        changedS=theta;
-        //规则3
-        for(auto it=tmpS.rbegin();it!=tmpS.rend();it++){
-            changedS += *it;
-            changedS += theta;
+    static std::string raw3(std::string s) {
+        size_t left = s.find('('), right = s.rfind(')');
+        if (left != std::string::npos && right != std::string::npos && left < right) {
+            char theta = s[left + 1];
+            std::string inner = s.substr(left + 2, right - left - 2);
+            inner = raw3(inner); // Recursive call
+            std::string changed;
+            changed += theta;
+            for (auto it = inner.rbegin(); it != inner.rend(); ++it) {
+                changed += *it;
+                changed += theta;
+            }
+            s.replace(left, right - left + 1, changed);//
         }
-        tmpS=changedS;
-        if(left){
-            tmpS=s.substr(0,left)+tmpS;
-        }
-        if(right!=s.size()){
-            tmpS=tmpS+s.substr(right+1,s.size()-right-1);
-        }
+        return s;
     }
-    //如果没有括号
-    else
-        tmpS=s;
-    return tmpS;
-}
 };
 
-int main()
-{
-    string inputS;
-    cin>>inputS;
-    explainDemonL::run(inputS);
-    cout<<inputS;
+int main() {
+    std::string input;
+    std::cin >> input;
+    StringTransformer transformer;
+    transformer.transform(input);
+    std::cout << input << std::endl;
     return 0;
 }
