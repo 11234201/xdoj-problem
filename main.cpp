@@ -6,85 +6,84 @@
 #include <list>
 #include <set>
 #include <map>
+#include <stack>
+#include <cstring>
+#include <algorithm>
 using namespace std;
 
-class MyComp{
+class explainDemonL{
 public:
-    bool operator()(pair<int,int> p1,pair<int ,int>p2){
-        return p1.second<p2.second;
+static void run(string& inputS){
+    inputS= raw3(inputS);
+    inputS= rawB(inputS);
+    inputS= rawA(inputS);
+}
+//将所有B转换成tAdA
+static string rawB(string s){
+    string tmpS;
+    for(auto &tmpC:s){
+        if(tmpC=='B')
+            tmpS+="tAdA";
+        else
+            tmpS+=tmpC;
     }
-};
+    return tmpS;
+}
 
-struct Polynomial{
-    typedef  map<int,int> myType;
-    //第一项是指数，第二项是系数
-    myType body;
+//将所有A转换成sae
+static string rawA(string s){
+    string tmpS;
+    for(auto &tmpC:s){
+        if(tmpC=='A')
+            tmpS+="sae";
+        else
+            tmpS+=tmpC;
+    }
+    return tmpS;
+}
 
-    Polynomial operator+(const Polynomial& other)const{
-        Polynomial temp=*this;
+//将所有（？x1 x2...xn）转化为 ?xn?...?x2?x1?
+//?可以是任意字符
+static string raw3(string s){
+    string tmpS;
+    size_t left=s.find('('),right;
+    //如果有括号
+    if(left!=string::npos){
+        right=s.rfind(')');
+        tmpS=s.substr(left+2,right-left-2);//tmpS这时已成为括号里除了第一个字符之外的串
 
-        for(auto &it:other.body){
-            temp.body[it.first]+=it.second;
-            if(temp.body[it.first]==0)
-                temp.body.erase(it.first);
+        char theta= s[left+1];//？对应的字符
+
+        //递归调用
+        tmpS=raw3(tmpS);
+
+        string changedS;
+        changedS=theta;
+        //规则3
+        for(auto it=tmpS.rbegin();it!=tmpS.rend();it++){
+            changedS += *it;
+            changedS += theta;
         }
-        return temp;
-    }
-
-    Polynomial operator-(const Polynomial& other)const{
-        Polynomial temp= *this;
-
-        for(auto &it:other.body){
-            temp.body[it.first]-=it.second;
-            if(temp.body[it.first]==0)
-                temp.body.erase(it.first);
+        tmpS=changedS;
+        if(left){
+            tmpS=s.substr(0,left)+tmpS;
         }
-        return temp;
-    }
-
-    friend ostream& operator<<(ostream& os,const Polynomial &sub){
-        bool first= true;
-        if(sub.body.empty())
-            return os<<'0';
-        for(const auto &it:sub.body){
-            if(!first){
-                if(it.second>0)
-                    os<<'+';
-                else
-                    os<<'-';
-            }
-            first= false;
-            if(it.first==0)
-                os<<it.second;
-            else {
-                if(it.second!=1&&it.second!=-1)
-                    os<<abs(it.second);
-                os << "x" ;
-                if(it.first!=1)
-                    os<<'^'<<it.first;
-            }
+        if(right!=s.size()){
+            tmpS=tmpS+s.substr(right+1,s.size()-right-1);
         }
-        return os;
     }
+    //如果没有括号
+    else
+        tmpS=s;
+    return tmpS;
+}
 };
 
 int main()
 {
-    int n,m,operate;
-    int temp1,temp2;
-    Polynomial p1,p2;
-    cin>>n>>m>>operate;
-    while(n--){
-        cin>>temp1>>temp2;
-        p1.body.insert({temp2,temp1});
-    }
-    while(m--){
-        cin>>temp1>>temp2;
-        p2.body.insert({temp2,temp1});
-    }
-    if(operate)
-        cout<<p1-p2;
-    else
-        cout<<p1+p2;
+    string inputS;
+    cin>>inputS;
+    explainDemonL::run(inputS);
+    cout<<inputS;
     return 0;
 }
