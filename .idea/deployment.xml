@@ -2,21 +2,29 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="my (f7c86ad0-43cb-48fb-aa0b-a9efca683f43)">
+      <paths name="eda240311 (56f17285-97d9-4ca2-9d1c-cae8376a4d1a)">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="远程主机 (5cc0318e-f070-48e1-9d00-4368fb0f626e)">
+      <paths name="xd (947c3387-e15d-48ba-b7d5-b4e7f893edae)">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/tmp.6Gl3CXQxZr" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/tmp.7BCyJj4TV4" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
           </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="提交账户 (673b1f67-d6d5-4ba4-bee5-9dc15bbc7736)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
         </serverdata>
       </paths>
     </serverData>
