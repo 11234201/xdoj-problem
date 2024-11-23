@@ -6,85 +6,75 @@
 #include <list>
 #include <set>
 #include <map>
+#include <queue>
 using namespace std;
 
-class MyComp{
-public:
-    bool operator()(pair<int,int> p1,pair<int ,int>p2){
-        return p1.second<p2.second;
+struct TNode{
+    int cFreq;
+    int lChild,rChild;
+
+    TNode(): cFreq(0), lChild(-1), rChild(-1){}
+    explicit TNode(int c): cFreq(c), lChild(-1), rChild(-1){}
+    TNode(int c,int l,int r): cFreq(c), lChild(l), rChild(r){}
+    bool operator < (const TNode other)const{
+        return cFreq>other.cFreq;
     }
 };
 
-struct Polynomial{
-    typedef  map<int,int> myType;
-    //第一项是指数，第二项是系数
-    myType body;
 
-    Polynomial operator+(const Polynomial& other)const{
-        Polynomial temp=*this;
-
-        for(auto &it:other.body){
-            temp.body[it.first]+=it.second;
-            if(temp.body[it.first]==0)
-                temp.body.erase(it.first);
+class huffmanTree{
+private:
+    int n;
+    int index;
+    vector<TNode> tree;
+    priority_queue<TNode> minHeap;
+public:
+    huffmanTree(int num, vector<int> f):n(num){
+        //tree.resize(2*n-1);
+        TNode tmpNode;
+        for(int i=0;i<n;i++){
+            tmpNode.cFreq=f[i];
+            minHeap.push(tmpNode);
         }
-        return temp;
+    }
+    void BuildTree(){
+        index=0;
+        while(minHeap.size()>1){
+            TNode left =minHeap.top();minHeap.pop();
+            TNode right=minHeap.top();minHeap.pop();
+            TNode newNode={right.cFreq+left.cFreq,index,index+1};
+            tree.push_back(left);
+            tree.push_back(right);
+            minHeap.push(newNode);
+            index+=2;
+        }
+        tree.push_back(minHeap.top());
+//        ++index;
+    };
+
+
+    int calWPL(int i,int deep){
+        if(tree[i].lChild==-1&&tree[i].rChild==-1)
+            return deep*tree[i].cFreq;
+        return calWPL(tree[i].lChild,deep+1)
+               + calWPL(tree[i].rChild,deep+1);
     }
 
-    Polynomial operator-(const Polynomial& other)const{
-        Polynomial temp= *this;
-
-        for(auto &it:other.body){
-            temp.body[it.first]-=it.second;
-            if(temp.body[it.first]==0)
-                temp.body.erase(it.first);
-        }
-        return temp;
-    }
-
-    friend ostream& operator<<(ostream& os,const Polynomial &sub){
-        bool first= true;
-        if(sub.body.empty())
-            return os<<'0';
-        for(const auto &it:sub.body){
-            if(!first){
-                if(it.second>0)
-                    os<<'+';
-                else
-                    os<<'-';
-            }
-            first= false;
-            if(it.first==0)
-                os<<it.second;
-            else {
-                if(it.second!=1&&it.second!=-1)
-                    os<<abs(it.second);
-                os << "x" ;
-                if(it.first!=1)
-                    os<<'^'<<it.first;
-            }
-        }
-        return os;
+    int solve(){
+        return calWPL(index,0);
     }
 };
 
 int main()
 {
-    int n,m,operate;
-    int temp1,temp2;
-    Polynomial p1,p2;
-    cin>>n>>m>>operate;
-    while(n--){
-        cin>>temp1>>temp2;
-        p1.body.insert({temp2,temp1});
-    }
-    while(m--){
-        cin>>temp1>>temp2;
-        p2.body.insert({temp2,temp1});
-    }
-    if(operate)
-        cout<<p1-p2;
-    else
-        cout<<p1+p2;
+    int n;
+    vector<int> freq;
+    cin>>n;
+    freq.resize(n);
+    for(int i=0;i<n;++i)
+        cin>>freq[i];
+    huffmanTree HTree(n,freq);
+    HTree.BuildTree();
+    cout<<HTree.solve()<<endl;
     return 0;
 }
