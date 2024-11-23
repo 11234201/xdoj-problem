@@ -12,5 +12,17 @@ using namespace std;
 
 int main()
 {
+    int n,sum=0,tmpNum;
+    cin>>n;
+    while(n--){
+        cin>>tmpNum;
+        int bit;
+        while(tmpNum){
+            bit=tmpNum%10;
+            tmpNum/=10;
+            sum=(sum+bit)%10;
+        }
+    }
+    cout<<sum;
     return 0;
 }
