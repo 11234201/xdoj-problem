@@ -50,24 +50,13 @@ public:
             fa[i]=i;
     }
 
-    //给无向图建造边
-    void mkEdge(int f,int to,int w){
-        edge[edgeCnt]={to,head[f],w};
-        head[f]=edgeCnt;
-        ++edgeCnt;
-
-        edge[edgeCnt]={f,head[to],w};
-        head[to]=edgeCnt;
-        ++edgeCnt;
-    }
-
     void storeEdge(int f,int to,int w){
         //保证f小于to
-//        if(f>to){
-//            f=f^to;
-//            to=f^to;
-//            f=f^to;
-//        }
+        if(f>to){
+            f=f^to;
+            to=f^to;
+            f=f^to;
+        }
         store.emplace_back(f,to,w);
     }
 
@@ -81,7 +70,7 @@ public:
         sort(store.begin(),store.end());
         int cnt=1;
         for(auto &subEdge: store){
-            int lfa=fa[subEdge.to], rfa=fa[subEdge.next];
+            int lfa=Fa(subEdge.to), rfa=Fa(subEdge.next);
             if(lfa!=rfa){
                 fa[rfa]=lfa;
                 ans.push_back(subEdge);
