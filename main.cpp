@@ -14,14 +14,30 @@ int n,m;
 
 struct Edge{
     int to,next;
+    int w;
+
+    Edge():to(0),next(0),w(0){}
+    Edge(int a,int b):to(a),next(b),w(0){}
+    Edge(int a,int b,int c):to(a),next(b),w(c){}
+
+    bool operator < (const Edge& other) const{
+        if(w==other.w) {
+            if (to == other.to)
+                return next < other.next;
+            else
+                return to < other.to;
+        }
+        return w<other.w;
+    }
 };
 
 class Graph{
 private:
     vector<int> head;
     vector<Edge> edge;
-    vector<int> vis;
-    vector<int> ans;
+    vector<Edge> store;
+    vector<int> fa;
+    vector<Edge> ans;
     int n,m;
     int edgeCnt=1;
 public:
@@ -29,59 +45,57 @@ public:
         head.resize(n);
         edge.resize(m*2+1);
 
-        vis.resize(n);
+        fa.resize(n);
+        for(int i=0;i<n;++i)
+            fa[i]=i;
     }
 
     //给无向图建造边
-    void mkEdge(int f,int to){
-        edge[edgeCnt]={to,head[f]};
+    void mkEdge(int f,int to,int w){
+        edge[edgeCnt]={to,head[f],w};
         head[f]=edgeCnt;
         ++edgeCnt;
 
-        edge[edgeCnt]={f,head[to]};
+        edge[edgeCnt]={f,head[to],w};
         head[to]=edgeCnt;
         ++edgeCnt;
     }
 
-    //从某一个点start开始遍历所有能到的点，并标记为num
-    void Traversal(int start,int num){
-        queue<int> q;
-        q.push(start);
-        vis[start]=num;
-        while(!q.empty()){
-            int u=q.front();
-            q.pop();
-            for(int v=head[u];v;v=edge[v].next) {
-                int& to = edge[v].to;
-                if (!vis[to]) {
-                    q.push(to);
-                    vis[to] = num;
-                }
+    void storeEdge(int f,int to,int w){
+        //保证f小于to
+//        if(f>to){
+//            f=f^to;
+//            to=f^to;
+//            f=f^to;
+//        }
+        store.emplace_back(f,to,w);
+    }
+
+    int Fa(int a){
+        if(fa[a]==a)
+            return a;
+        return fa[a]=Fa(fa[a]);
+    }
+
+    void Kruskal(){
+        sort(store.begin(),store.end());
+        int cnt=1;
+        for(auto &subEdge: store){
+            int lfa=fa[subEdge.to], rfa=fa[subEdge.next];
+            if(lfa!=rfa){
+                fa[rfa]=lfa;
+                ans.push_back(subEdge);
+                ++cnt;
+                if(cnt==n)
+                    break;
             }
         }
     }
 
-    void Find(){
-        int subGraphNum=0;
-        for(int i=0;i<n;++i){
-            if(vis[i])
-                continue;
-            ++subGraphNum;
-            Traversal(i,subGraphNum);
-        }
-
-        ans.resize(subGraphNum);
-        //统计答案，因为num是从1开始的，所以--后再统计
-        for(int i=0;i<n;++i)
-            ++ans[--vis[i]];
-
-        sort(ans.begin(),ans.end());
-    }
-
     friend ostream& operator << (ostream& s, const Graph & g){
-        s << g.ans.size() << endl;
-        for(auto & i : g.ans)
-            s<<i<<' ';
+        for(auto &subEdge: g.ans){
+            printf("%d %d %d\n",subEdge.to+1,subEdge.next+1,subEdge.w);
+        }
         return s;
     }
 
@@ -92,12 +106,12 @@ int main()
 
     cin>>n>>m;
     Graph graph(n,m);
-    int tmpF,tmpT;
+    int tmpF,tmpT,tmpW;
     for(int i=0;i<m;++i){
-        cin>>tmpF>>tmpT;
-        graph.mkEdge(tmpF-1,tmpT-1);
+        cin>>tmpF>>tmpT>>tmpW;
+        graph.storeEdge(tmpF-1,tmpT-1,tmpW);
     }
-    graph.Find();
+    graph.Kruskal();
     cout<<graph;
 
     return 0;
