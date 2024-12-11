@@ -66,10 +66,39 @@ public:
         }
     }
 
+    void bfs(){
+        queue<int > q;
+        q.push(0);
+        vis[0]=1;
+        vector<int> pre;
+        pre.assign(n,-1);
+        pre[0]=0;
+        while(!q.empty()){
+            int v=q.front();
+            q.pop();
+            if(v==n-1)
+                break;
+            for(int u=head[v];u;u=edge[u].next){
+                int to=edge[u].to;
+                if(vis[to])
+                    continue;
+                q.push(to);
+                pre[to]=v;
+                vis[to]=1;
+            }
+        }
+        for(int i=n-1;;i=pre[i]){
+            ans.push_back(i);
+            if(i==0)
+                break;
+        }
+    }
+
     void solve(){
         vis[0]=1;
         ans.clear();
-        dfs(0);
+//        dfs(0);
+        bfs();
         if(ans.empty()){
             cout<<"NO"<<endl;
             return;
