@@ -71,35 +71,36 @@ public:
         q.push(0);
         vis[0]=1;
         vector<int> pre;
-        pre.assign(n,-1);
-        pre[0]=0;
         while(!q.empty()){
             int v=q.front();
+            ans.push_back(v);
             q.pop();
-            if(v==n-1)
-                break;
+            if(v==n-1) {
+                stop=1;
+            }
             for(int u=head[v];u;u=edge[u].next){
                 int to=edge[u].to;
                 if(vis[to])
                     continue;
                 q.push(to);
-                pre[to]=v;
                 vis[to]=1;
             }
         }
-        for(int i=n-1;;i=pre[i]){
-            ans.push_back(i);
-            if(i==0)
-                break;
+        if(!stop){
+            cout<<"NO"<<endl;
+            return;
         }
+        cout<<"YES"<<endl;
+        for(int & an : ans)
+            cout<<1+an<<' ';
     }
 
     void solve(){
         vis[0]=1;
         ans.clear();
-//        dfs(0);
-        bfs();
-        if(ans.empty()){
+        dfs(0);
+//        bfs();
+        if(stop){
             cout<<"NO"<<endl;
             return;
         }
@@ -133,6 +134,7 @@ int main()
         graph.mkEdge(e.first-1,e.second-1);
     }
     //以上存储排序操作为了保证遍历时候编号小的在前
-    graph.solve();
+//    graph.solve();
+    graph.bfs();
     return 0;
 }
