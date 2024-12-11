@@ -24,8 +24,9 @@ private:
     vector<int> ans;
     int n,m;
     int edgeCnt=1;
+    int stop;
 public:
-    Graph(int nn,int mm):n(nn), m(mm), edgeCnt(1){
+    Graph(int nn,int mm):n(nn), m(mm), edgeCnt(1),stop(0){
         head.resize(n);
         edge.resize(m*2+1);
 
@@ -38,54 +39,53 @@ public:
         head[f]=edgeCnt;
         ++edgeCnt;
 
-        edge[edgeCnt]={f,head[to]};
-        head[to]=edgeCnt;
-        ++edgeCnt;
+//        edge[edgeCnt]={f,head[to]};
+//        head[to]=edgeCnt;
+//        ++edgeCnt;
     }
 
-    //从某一个点start开始遍历所有能到的点，并标记为num
-    void Traversal(int start,int num){
-        queue<int> q;
-        q.push(start);
-        vis[start]=num;
-        while(!q.empty()){
-            int u=q.front();
-            q.pop();
-            for(int v=head[u];v;v=edge[v].next) {
-                int& to = edge[v].to;
-                if (!vis[to]) {
-                    q.push(to);
-                    vis[to] = num;
-                }
+    void dfs(int v){
+        if(v==n-1){
+            ans.push_back(v);
+            stop=1;
+            return;
+        }
+        for(int u=head[v];u;u=edge[u].next){
+            int to=edge[u].to;
+            if(vis[to])
+                continue;
+
+            vis[to]=1;
+            dfs(to);
+            vis[to]=0;
+
+            if(stop) {
+                ans.push_back(v);
+                break;
             }
         }
     }
 
-    void Find(){
-        int subGraphNum=0;
-        for(int i=0;i<n;++i){
-            if(vis[i])
-                continue;
-            ++subGraphNum;
-            Traversal(i,subGraphNum);
+    void solve(){
+        vis[0]=1;
+        ans.clear();
+        dfs(0);
+        if(ans.empty()){
+            cout<<"NO"<<endl;
+            return;
         }
-
-        ans.resize(subGraphNum);
-        //统计答案，因为num是从1开始的，所以--后再统计
-        for(int i=0;i<n;++i)
-            ++ans[--vis[i]];
-
-        sort(ans.begin(),ans.end());
-    }
-
-    friend ostream& operator << (ostream& s, const Graph & g){
-        s << g.ans.size() << endl;
-        for(auto & i : g.ans)
-            s<<i<<' ';
-        return s;
+        cout<<"YES"<<endl;
+        for(auto i=ans.rbegin();i!=ans.rend();++i)
+            cout<<1+*i<<' ';
     }
 
 };
+
+int cmp(pair<int,int>a, pair<int,int >b){
+    if(a.first==b.first)
+        return a.second>b.second;
+    return a.first>b.first;
+}
 
 int main()
 {
@@ -93,12 +93,17 @@ int main()
     cin>>n>>m;
     Graph graph(n,m);
     int tmpF,tmpT;
+    vector<pair<int,int> > store;
     for(int i=0;i<m;++i){
         cin>>tmpF>>tmpT;
-        graph.mkEdge(tmpF-1,tmpT-1);
+        store.emplace_back(tmpF,tmpT);
+        store.emplace_back(tmpT,tmpF);
     }
-    graph.Find();
-    cout<<graph;
-
+    sort(store.begin(),store.end(), cmp);
+    for(auto & e:store){
+        graph.mkEdge(e.first-1,e.second-1);
+    }
+    //以上存储排序操作为了保证遍历时候编号小的在前
+    graph.solve();
     return 0;
 }
