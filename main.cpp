@@ -8,9 +8,9 @@
 #include <map>
 #include <queue>
 #include <algorithm>
+#include <iomanip>
 using namespace std;
 
-int n,m;
 
 struct Edge{
     int to,next,w;
@@ -40,7 +40,7 @@ private:
 public:
     Graph(int nn,int mm):n(nn), m(mm), edgeCnt(1){
         head.resize(n);
-        edge.resize(m+1);
+        edge.resize(m*2+1);
 
         ans.resize(n,0x3fffffff);
         vis.resize(n);
@@ -53,15 +53,15 @@ public:
         head[f]=edgeCnt;
         ++edgeCnt;
 //给无向图建造边
-//        edge[edgeCnt]={f,head[to]};
-//        head[to]=edgeCnt;
-//        ++edgeCnt;
+        edge[edgeCnt]={f,head[to],w};
+        head[to]=edgeCnt;
+        ++edgeCnt;
     }
 
-    void Dijkstra(int from,int to){
+    void Dijkstra(int from,int maxDis){
         priority_queue<QueueStruct>q;
         ans[from]=0;
-        q.push({0,0,0});
+        q.push({0,from,0});
         while(!q.empty()){
             auto top=q.top();  q.pop();
             int v=top.v;
@@ -69,12 +69,12 @@ public:
             if(vis[v])
                 continue;
 
+            //提前退出
+            if(top.w==maxDis)
+                continue;
             pre[v]=top.father;
             vis[v]=1;
 
-            //提前退出
-            if(v==to)
-                break;
 
             for(int u=head[v];u;u=edge[u].next) {
                 int t=edge[u].to;
@@ -84,53 +84,42 @@ public:
                 }
             }
         }
-        //输出结果与路径
-        cout<<endl<<ans[to]<<endl;
-        recurveOutput(to);
-        cout<<endl;
+        int cnt=0;
+        for(auto &i:ans)
+            if(i<0x3fffffff)
+                ++cnt;
+        cout<<100.0*cnt/n<<'%'<<endl;
+
+
+        ans.assign(n,0x3fffffff);
+        vis.assign(n,0);
+        pre.assign(n,-1);
     }
 
-    //递归输出路径
-    void recurveOutput(int n){
-        if(pre[n]==n){
-            cout<<unNameMap[n]<<' ';
-            return;
-        }
-        recurveOutput(pre[n]);
-        cout<<unNameMap[n]<<' ';
-    }
-    //编号到字母的映射，方便在类里面直接输出回溯
-    void mkUnNameMap(map<char,int> &nameMap){
-        for(auto &sub:nameMap){
-            unNameMap[sub.second]=sub.first;
-        }
-    }
 };
 
 
 int main()
 {
+    int n,m;
+    cout<<fixed<<setprecision(2);
     while(true) {
         cin >> n >> m;
         if(n==m&&n==0)
             break;
-        map<char,int> nameMap;
         //字母到编号的映射
         Graph graph(n, m);
-        char tmpF, tmpT;
+        int tmpF, tmpT;
         int w;
-        for(int i=0;i<n;++i){
-            cin>>tmpF;
-            nameMap[tmpF]=i;
-        }
-        graph.mkUnNameMap(nameMap);
 
         while(m--){
-            cin>>tmpF>>tmpT>>w;
-            graph.mkEdge(nameMap[tmpF],nameMap[tmpT],w);
+            cin>>tmpF>>tmpT;
+            graph.mkEdge(tmpF-1,tmpT-1,1);
         }
-        cin>>tmpF>>tmpT;
-        graph.Dijkstra(nameMap[tmpF],nameMap[tmpT]);
+        for(int i=0;i<n;++i){
+            cout<<i+1<<':';
+            graph.Dijkstra(i,6);
+        }
     }
     return 0;
 }
