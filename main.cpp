@@ -7,6 +7,8 @@
 #include <set>
 #include <map>
 #include <queue>
+#include <algorithm>
+
 using namespace std;
 
 void computeLPSArray(const std::string& pattern, std::vector<int>& lps) {
@@ -63,12 +65,23 @@ int kmpSearch(const std::string& text, const std::string& pattern) {
 int main()
 {
     string text,pattern;
-    getline(cin,text);
-    getline(cin,pattern);
-    int xx=kmpSearch(text,pattern);
-    if(xx)
-        cout<<xx-pattern.size()+1;
-    else
-        cout<<"No!";
+    while(true) {
+        cin>>pattern>>text;
+        if(pattern=="0"&&text=="0")
+            break;
+        int n=pattern.size();
+        int flag;
+        while(n--) {
+            flag = kmpSearch(text, pattern);
+            if(flag)
+                break;
+            //将第一个字母移动到末尾，环状结构模拟
+            rotate(pattern.begin(), pattern.begin() + 1, pattern.end());
+        }
+        if (flag)
+            cout << "YES" << endl;
+        else
+            cout << "NO" << endl;
+    }
     return 0;
 }
